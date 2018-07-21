@@ -7,7 +7,10 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {AppRegistry, Platform, StyleSheet, Text, View} from 'react-native';
+
+// TODO: firebaseが動くことを確認したら適切な場所でimportする
+import { firebase } from './src/firebase';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
