@@ -1,37 +1,49 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { firebase } from './firebase';
+import { StyleSheet, Text, View, Button } from 'react-native';
+import { firebase, login } from './firebase';
+import * as fb from 'firebase';
+import { NativeModules } from 'react-native'
 
-
-// TODO: 適切な場所に移動する
-const provider = new firebase.auth.TwitterAuthProvider();
-// firebase.auth().languageCode = 'ja';
-// firebase.auth().languageCode = 'ja';
-firebase.auth().signInWithPopup(provider).then(function(result) {
-  // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
-  // You can use these server side with your app's credentials to access the Twitter API.
-  const token = result.credential.accessToken;
-  const secret = result.credential.secret;
-  // The signed-in user info.
-  const user = result.user;
-  // ...
-}).catch(function(error) {
-  // Handle Errors here.
-  const errorCode = error.code;
-  const errorMessage = error.message;
-  // The email of the user's account used.
-  const email = error.email;
-  // The firebase.auth.AuthCredential type that was used.
-  const credential = error.credential;
-});
+// const provider = firebase.auth.FacebookAuthProvider;
+// const providerTwitter =firebase.auth.TwitterAuthProvider;
+const Constants = {
+  TWITTER_COMSUMER_KEY: 'uOiSkazdnmcQYpeI0r144286A',
+  TWITTER_CONSUMER_SECRET: 'KpJ2CkeYQcbl7vDAyKWCFxvg6J95RURl7FLsYmM8PqZceTIChC',
+};
 
 export default class App extends React.Component {
+  handleSubmit = () => {
+    const RNTwitterSignIn = NativeModules.RNTwitterSignIn;
+    console.log('------------')
+    console.log(NativeModules)
+    console.log(RNTwitterSignIn)
+    console.log('------------')
+    RNTwitterSignIn.init(Constants.TWITTER_COMSUMER_KEY, Constants.TWITTER_CONSUMER_SECRET);
+    RNTwitterSignIn.logIn()
+      .then((loginData)=>{
+
+        const { authToken, authTokenSecret } = loginData;
+        if (authToken && authTokenSecret) {
+          // we are loged successfull
+
+          const credential = providerTwitter.credential(authToken, authTokenSecret);
+          return auth.signInWithCredential(credential);
+        }
+      }).then(credData => {
+        //..
+      }).catch((error)=>{
+
+        props.dispatch(ACTIONS.UPDATE_SHOW_LOGGIN_CONTENT(true))
+      });
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <Text>Open up App.js to start working on your app!</Text>
         <Text>Changes you make will automatically reload.</Text>
         <Text>Shake your phone to open the developer menu.</Text>
+        <Button onPress={this.handleSubmit} title='Twitter Log in'/>
       </View>
     );
   }
