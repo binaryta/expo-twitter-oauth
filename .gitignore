@@ -403,4 +403,6 @@ tags
 # Sonarlint plugin
 
 
+/src/config/firebase.js
+/src/config/twitter.js
 # End of https://www.gitignore.io/api/vim,macos,webstorm,intellij,reactnative

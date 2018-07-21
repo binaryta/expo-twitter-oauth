@@ -1,18 +1,23 @@
 import React from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
-import {config} from './config';
+import {StyleSheet, Text, View, Button, Alert} from 'react-native';
+import { firebaseConfig } from './src/config/firebase';
+import { config as twitterConfig } from './src/config/twitter';
 import twitter, {TWLoginButton, decodeHTMLEntities, getRelativeTime} from 'react-native-simple-twitter'
 
-const Constants = {
-  TWITTER_COMSUMER_KEY: 'uOiSkazdnmcQYpeI0r144286A',
-  TWITTER_CONSUMER_SECRET: 'KpJ2CkeYQcbl7vDAyKWCFxvg6J95RURl7FLsYmM8PqZceTIChC',
-};
-
 export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null, // firestoreに直接乗せる
+      token: null,
+      token_secret: null,
+    }
+    twitter.setConsumerKey(twitterConfig.consumerKey, twitterConfig.consumerSecret)
+  }
 
   async componentWillMount() {
-    if (this.props.user.token) {
-      twitter.setAccessToken(this.props.user.token, this.props.user.token_secret)
+    if (this.state.token) {
+      twitter.setAccessToken(this.state.token, this.state.token_secret)
 
       try {
         const user = await twitter.get("account/verify_credentials.json", {
@@ -20,14 +25,7 @@ export default class App extends React.Component {
           skip_status: true,
           include_email: true
         })
-        this.props.dispatch({type: "USER_SET", user: user})
-
-        this.props.dispatch(NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({routeName: 'Home'})
-          ]
-        }))
+        this.setState({user: user})
       } catch (err) {
         console.log(err)
       }
@@ -35,43 +33,24 @@ export default class App extends React.Component {
   }
 
   onGetAccessToken = ({ oauth_token, oauth_token_secret }) => {
-    this.props.dispatch({ type: "TOKEN_SET", token: oauth_token, token_secret: oauth_token_secret })
+    this.setState({
+      token: oauth_token,
+      token_secret: oauth_token_secret
+    })
   }
 
   onSuccess = (user) => {
-    this.props.dispatch({ type: "USER_SET", user: user })
-
-    Alert.alert(
-      "Success",
-      "ログインできました",
-      [
-        {
-          text: 'Go HomeScreen',
-          onPress: () => {
-            this.props.dispatch(NavigationActions.reset({
-              index: 0,
-              actions: [
-                NavigationActions.navigate({ routeName: 'Home' })
-              ]
-            }))
-          }
-        }
-      ]
-    )
+    this.setState({user: user })
+    Alert.alert("Success", "ログインできました")
   }
 
-
-
-onPress = e => console.log("button pressed")
+  onPress = e => console.log("button pressed")
   onClose = e => console.log("press close button")
   onError = err => console.log(err)
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.title}>
-          <Text style={styles.titleText}>Login</Text>
-        </View>
         <TWLoginButton
           style={{ width: "100%", height: 60 }}
           type="TouchableOpacity"
@@ -79,11 +58,7 @@ onPress = e => console.log("button pressed")
           onGetAccessToken={this.onGetAccessToken}
           onSuccess={this.onSuccess}
           onClose={this.onClose}
-          onError={this.onError}>
-          <Text style={{ textAlign: "center", color: "#fff" }}>
-            Twitterでログインする
-          </Text>
-        </TWLoginButton>
+          onError={this.onError}><Text style={{ textAlign: "center", color: "#000" }}>Twitterでログインする</Text></TWLoginButton>
       </View>
     )
   }
