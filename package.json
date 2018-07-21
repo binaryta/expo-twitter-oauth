@@ -21,7 +21,9 @@
   "dependencies": {
     "expo": "^27.0.1",
     "firebase": "^5.3.0",
+    "prettier-eslint": "^8.8.2",
     "react": "16.3.1",
-    "react-native": "~0.55.2"
+    "react-native": "~0.55.2",
+    "react-native-simple-twitter": "^2.0.2"
   }
 }
